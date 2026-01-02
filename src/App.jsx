@@ -27,7 +27,7 @@ function App() {
   }, [messages]);
 
   const callGeminiAPI = async (prompt) => {
-    const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
+    const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.0-flash-latest:generateContent?key=${apiKey}`;
 
     try {
       const response = await fetch(API_URL, {
@@ -64,43 +64,43 @@ function App() {
     if (!inputMessage.trim() || isLoading) return;
 
     if (!apiKey) {
-      alert('Please enter your Gemini API key first');
+      alert("Please enter your Gemini API key first");
       return;
     }
 
     const userMessage = {
-      role: 'user',
+      role: "user",
       content: inputMessage,
-      timestamp: new Date()
+      timestamp: new Date(),
     };
 
-    setMessages(prev => [...prev, userMessage]);
-    setInputMessage('');
+    setMessages((prev) => [...prev, userMessage]);
+    setInputMessage("");
     setIsLoading(true);
 
     try {
       const response = await callGeminiAPI(inputMessage);
-      
+
       const assistantMessage = {
-        role: 'assistant',
+        role: "assistant",
         content: response,
-        timestamp: new Date()
+        timestamp: new Date(),
       };
-      
-      setMessages(prev => [...prev, assistantMessage]);
+
+      setMessages((prev) => [...prev, assistantMessage]);
     } catch (error) {
       const errorMessage = {
-        role: 'assistant',
-        content: 'Sorry, I encountered an error. Please check your API key and try again.',
+        role: "assistant",
+        content:
+          "Sorry, I encountered an error. Please check your API key and try again.",
         timestamp: new Date(),
-        error: true
+        error: true,
       };
-      setMessages(prev => [...prev, errorMessage]);
+      setMessages((prev) => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
     }
   };
-
 
   const handleKeyPress = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -121,15 +121,16 @@ function App() {
       {/*Header*/}
       <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 shadow-lg">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-                <Bot className="w-8 h-8" />
+          <div className="flex items-center space-x-3">
+            <Bot className="w-8 h-8" />
 
-                <div>
-                    <h1 className="text-2xl font-bold">Gemini AI ChatBot</h1>
-                    <p className="text-sm opacity-90">Powered by Google Gemini API </p>
-
-                </div>
+            <div>
+              <h1 className="text-2xl font-bold">Gemini AI ChatBot</h1>
+              <p className="text-sm opacity-90">
+                Powered by Google Gemini API{" "}
+              </p>
             </div>
+          </div>
         </div>
       </div>
 
@@ -141,10 +142,10 @@ function App() {
               <AlertCircle className="w-5 h-5 text-yellow-600 mt-0.5" />
               <div className="flex-1">
                 <p className="text-sm text-yellow-800 mb-2">
-                  Enter your Gemini API key to start chatting. Get one free at{' '}
-                  <a 
-                    href="https://makersuite.google.com/app/apikey" 
-                    target="_blank" 
+                  Enter your Gemini API key to start chatting. Get one free at{" "}
+                  <a
+                    href="https://makersuite.google.com/app/apikey"
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="underline font-medium"
                   >
@@ -179,40 +180,60 @@ function App() {
           {messages.map((message, index) => (
             <div
               key={index}
-              className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+              className={`flex ${
+                message.role === "user" ? "justify-end" : "justify-start"
+              }`}
             >
-              <div className={`flex max-w-xs lg:max-w-2xl ${message.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
-                <div className={`flex-shrink-0 ${message.role === 'user' ? 'ml-3' : 'mr-3'}`}>
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                    message.role === 'user' 
-                      ? 'bg-blue-600 text-white' 
-                      : message.error 
-                        ? 'bg-red-100 text-red-600'
-                        : 'bg-purple-100 text-purple-600'
-                  }`}>
-                    {message.role === 'user' ? <User className="w-5 h-5" /> : <Bot className="w-5 h-5" />}
+              <div
+                className={`flex max-w-xs lg:max-w-2xl ${
+                  message.role === "user" ? "flex-row-reverse" : "flex-row"
+                }`}
+              >
+                <div
+                  className={`flex-shrink-0 ${
+                    message.role === "user" ? "ml-3" : "mr-3"
+                  }`}
+                >
+                  <div
+                    className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                      message.role === "user"
+                        ? "bg-blue-600 text-white"
+                        : message.error
+                        ? "bg-red-100 text-red-600"
+                        : "bg-purple-100 text-purple-600"
+                    }`}
+                  >
+                    {message.role === "user" ? (
+                      <User className="w-5 h-5" />
+                    ) : (
+                      <Bot className="w-5 h-5" />
+                    )}
                   </div>
                 </div>
                 <div>
-                  <div className={`px-4 py-3 rounded-2xl ${
-                    message.role === 'user' 
-                      ? 'bg-blue-600 text-white' 
-                      : message.error
-                        ? 'bg-red-50 text-red-800 border border-red-200'
-                        : 'bg-white text-gray-800 shadow-md'
-                  }`}>
+                  <div
+                    className={`px-4 py-3 rounded-2xl ${
+                      message.role === "user"
+                        ? "bg-blue-600 text-white"
+                        : message.error
+                        ? "bg-red-50 text-red-800 border border-red-200"
+                        : "bg-white text-gray-800 shadow-md"
+                    }`}
+                  >
                     <p className="whitespace-pre-wrap">{message.content}</p>
                   </div>
-                  <p className={`text-xs mt-1 ${
-                    message.role === 'user' ? 'text-right' : 'text-left'
-                  } text-gray-500`}>
+                  <p
+                    className={`text-xs mt-1 ${
+                      message.role === "user" ? "text-right" : "text-left"
+                    } text-gray-500`}
+                  >
                     {formatTime(message.timestamp)}
                   </p>
                 </div>
               </div>
             </div>
           ))}
-          
+
           {isLoading && (
             <div className="flex justify-start">
               <div className="flex max-w-xs lg:max-w-2xl">
@@ -230,7 +251,7 @@ function App() {
               </div>
             </div>
           )}
-          
+
           <div ref={messagesEndRef} />
         </div>
       </div>

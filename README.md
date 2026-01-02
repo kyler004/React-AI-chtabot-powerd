@@ -14,3 +14,10 @@ The React Compiler is not enabled on this template because of its impact on dev 
 ## Expanding the ESLint configuration
 
 If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+
+## Tasks for this project
+
+- Create an env file to store the keys for the gemini api
+- Add a skeleton UI for the time the chatbot takes to respond (You might also use a loading animation)
+- Edit this _Readme_ file to explain this project
+- Change the UI to make sure that the code is split to make sure that the code is well organised
