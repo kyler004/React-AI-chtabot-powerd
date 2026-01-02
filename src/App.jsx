@@ -27,7 +27,7 @@ function App() {
   }, [messages]);
 
   const callGeminiAPI = async (prompt) => {
-    const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.0-flash-latest:generateContent?key=${apiKey}`;
+    const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
 
     try {
       const response = await fetch(API_URL, {
@@ -38,6 +38,7 @@ function App() {
         body: JSON.stringify({
           contents: [
             {
+              role: "user",
               parts: [
                 {
                   text: prompt,
@@ -45,6 +46,12 @@ function App() {
               ],
             },
           ],
+          generationConfig: {
+            temperature: 0.9,
+            maxOutputTokens: 2048,
+            topK: 40,
+            topP: 0.95,
+          },
         }),
       });
 
@@ -53,6 +60,17 @@ function App() {
       }
 
       const data = await response.json();
+
+      // Safety check to ensure the response has the expected structure
+      if (
+        !data.candidates ||
+        !data.candidates[0] ||
+        !data.candidates[0].content
+      ) {
+        console.error("Unexpected API response:", data);
+        throw new Error("Invalid response from Gemini API");
+      }
+
       return data.candidates[0].content.parts[0].text;
     } catch (error) {
       console.error("Error calling Gemini API: ", error);
@@ -89,6 +107,7 @@ function App() {
 
       setMessages((prev) => [...prev, assistantMessage]);
     } catch (error) {
+      console.error("Error in handleSendMessage:", error);
       const errorMessage = {
         role: "assistant",
         content:
