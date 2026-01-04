@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Send, Bot, User, Loader2, AlertCircle } from "lucide-react";
+import { Send, Bot, User, Loader2, Settings, ArrowDown } from "lucide-react";
+import ModalBox from "./components/ModalBox";
+import ReactMarkdown from "react-markdown";
 
 function App() {
   const [messages, setMessages] = useState([
@@ -14,9 +16,11 @@ function App() {
   const [inputMessage, setInputMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [apiKey, setApiKey] = useState("");
-  const [showApiKeyInput, setShowApiKeyInput] = useState(true);
+  const [showModal, setShowModal] = useState(true);
+  const [showScrollButton, setShowScrollButton] = useState(false);
 
   const messagesEndRef = useRef(null);
+  const chatContainerRef = useRef(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -25,6 +29,20 @@ function App() {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  useEffect(() => {
+    const chatContainer = chatContainerRef.current;
+    if (!chatContainer) return;
+
+    const handleScroll = () => {
+      const { scrollTop, scrollHeight, clientHeight } = chatContainer;
+      const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
+      setShowScrollButton(!isNearBottom);
+    };
+
+    chatContainer.addEventListener("scroll", handleScroll);
+    return () => chatContainer.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const callGeminiAPI = async (prompt) => {
     const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
@@ -150,51 +168,28 @@ function App() {
               </p>
             </div>
           </div>
+
+          {/* Settings Button */}
+          <button
+            onClick={() => setShowModal(true)}
+            className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+            aria-label="API Settings"
+          >
+            <Settings className="w-5 h-5" />
+          </button>
         </div>
       </div>
 
-      {/* API Key Input */}
-      {showApiKeyInput && (
-        <div className="bg-yellow-50 border-b border-yellow-200 p-4">
-          <div className="max-w-4xl mx-auto">
-            <div className="flex items-start space-x-2">
-              <AlertCircle className="w-5 h-5 text-yellow-600 mt-0.5" />
-              <div className="flex-1">
-                <p className="text-sm text-yellow-800 mb-2">
-                  Enter your Gemini API key to start chatting. Get one free at{" "}
-                  <a
-                    href="https://makersuite.google.com/app/apikey"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="underline font-medium"
-                  >
-                    Google AI Studio
-                  </a>
-                </p>
-                <div className="flex space-x-2">
-                  <input
-                    type="password"
-                    placeholder="Enter your Gemini API key..."
-                    value={apiKey}
-                    onChange={(e) => setApiKey(e.target.value)}
-                    className="flex-1 px-3 py-2 border border-yellow-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
-                  />
-                  <button
-                    onClick={() => setShowApiKeyInput(false)}
-                    disabled={!apiKey}
-                    className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                  >
-                    Save
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Modal Box */}
+      <ModalBox
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        onSave={(key) => setApiKey(key)}
+        initialApiKey={apiKey}
+      />
 
       {/* Chat Messages */}
-      <div className="flex-1 overflow-y-auto">
+      <div ref={chatContainerRef} className="flex-1 overflow-y-auto relative">
         <div className="max-w-4xl mx-auto p-4 space-y-4">
           {messages.map((message, index) => (
             <div
@@ -239,7 +234,13 @@ function App() {
                         : "bg-white text-gray-800 shadow-md"
                     }`}
                   >
-                    <p className="whitespace-pre-wrap">{message.content}</p>
+                    {message.role === "user" ? (
+                      <p className="whitespace-pre-wrap">{message.content}</p>
+                    ) : (
+                      <div className="prose prose-sm max-w-none">
+                        <ReactMarkdown>{message.content}</ReactMarkdown>
+                      </div>
+                    )}
                   </div>
                   <p
                     className={`text-xs mt-1 ${
@@ -273,6 +274,17 @@ function App() {
 
           <div ref={messagesEndRef} />
         </div>
+
+        {/* Scroll to Bottom Button */}
+        {showScrollButton && (
+          <button
+            onClick={scrollToBottom}
+            className="fixed bottom-24 right-8 w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center animate-fadeIn group"
+            aria-label="Scroll to bottom"
+          >
+            <ArrowDown className="w-5 h-5 group-hover:animate-bounce" />
+          </button>
+        )}
       </div>
 
       {/* Input Area */}
